@@ -1,35 +1,43 @@
 const GRIDSIZE = 9;
 
+// DOM Elements
+const pageHeaderElement = document.querySelector('.page-header');
+const boardGridElement = document.querySelector('.game-board');
+const playerXInputElement = document.getElementById('player-x');
+const playerOInputElement = document.getElementById('player-o');
+const startButtonElement = document.getElementById('start-button');
+const resetButtonElement = document.getElementById('reset-button');
+
+
+
 const gameBoard = (() => {
     let grid = [];
 
     // Generate grid
-    const boardGrid = document.querySelector('.game-board');
     for (let i = 0; i < GRIDSIZE; i++) {
         grid.push('');
         const square = document.createElement('div');
         square.classList = 'square';
         square.id = `square${i}`;
-        square.addEventListener('click', squareIsEmpty);
-        boardGrid.append(square);
+        square.addEventListener('click', updateSquare);
+        boardGridElement.appendChild(square);
     }
 
-    // Check if the clicked square is empty
-    function squareIsEmpty(e) {
-        const squareNumber = e.target.id.replace('square', '');
-        if (grid[squareNumber] == '') {
-            updateSquare(squareNumber);
-        }
+    function isSquareEmpty(squareNumber) {
+        if (grid[squareNumber] == '') return true;
     }
 
     // Update the square in the grid array and html element
-    function updateSquare(squareNumber) {
-        const player = game.currentPlayersTurn();
-        grid[squareNumber] = player;
-        document.getElementById(`square${squareNumber}`)
-            .textContent = player;
+    function updateSquare(e) {
+        const squareNumber = e.target.id.replace('square', '');
+        if (!isSquareEmpty(squareNumber)) return;
 
-        if (game.gameOver()) {
+        const currentPlayer = game.currentPlayersTurn();
+        grid[squareNumber] = currentPlayer;
+        document.getElementById(`square${squareNumber}`)
+            .textContent = currentPlayer;
+
+        if (game.isOver()) {
             game.displayResult('win');
         } else if (grid.includes('')) {
             game.toggleTurn();
@@ -45,6 +53,7 @@ const gameBoard = (() => {
             document.getElementById(`square${i}`)
                 .textContent = '';
         }
+        pageHeaderElement.textContent = 'Tic Tac Toe'
     }
 
     function getGrid() {
@@ -58,22 +67,34 @@ const gameBoard = (() => {
 
 })();
 
-// Player factory function
-const player = (symbol) => {
+
+// currentPlayer factory function
+const player = (name, symbol) => {
+    const playerName = name;
     const playerSymbol = symbol;
 
     function getSymbol() {
         return playerSymbol;
     }
 
-    return { getSymbol };
+    function getName() {
+        return playerName;
+    }
+
+    return {
+        getName,
+        getSymbol
+    };
 }
+
 
 // Module that controls the flow of the game
 const game = (() => {
+    resetButtonElement.addEventListener('click', gameBoard.reset);
+
     let turn = 'x';
-    const playerX = player('x');
-    const playerO = player('o');
+    const playerX = player('a', 'x');
+    const playerO = player('b', 'o');
 
     function currentPlayersTurn() {
         return turn;
@@ -99,7 +120,7 @@ const game = (() => {
         [2, 4, 6]
     ];
 
-    function gameOver() {
+    function isOver() {
         const grid = gameBoard.getGrid();
         const currentPlayer = currentPlayersTurn();
         let win = false;
@@ -123,16 +144,20 @@ const game = (() => {
     function displayResult(result) {
         if (result == 'win') {
             console.log(`${game.currentPlayersTurn()} won!`)
+            pageHeaderElement.textContent = `${game.currentPlayersTurn()} won!`;
         } else {
             console.log('It\'s a tie');
+            pageHeaderElement.textContent = 'It\'s a tie';
         }
+
+        setTimeout(gameBoard.reset, 2000);
     }
 
 
     return {
         currentPlayersTurn,
         toggleTurn,
-        gameOver,
+        isOver,
         displayResult
     }
 

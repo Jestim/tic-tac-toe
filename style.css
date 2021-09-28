@@ -13,7 +13,8 @@
     height: 100vh;
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 
 .game-board {
@@ -30,4 +31,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.player-name {
+    margin-top: 3rem;
+}
+
+.player-name input {
+    margin-right: 3rem;
+}
+
+.buttons button {
+    margin: 2rem;
 }
